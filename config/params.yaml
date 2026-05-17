@@ -43,4 +43,6 @@ artifacts:
 
 mlflow:
   experiment_name: loan_default_prediction
-  # tracking_uri: ""   # leave blank for local ./mlruns, or set MLFLOW_TRACKING_URI env var (e.g. DagsHub)
+  tracking_uri: https://dagshub.com/AI-ML/loan_prediction.mlflow
+  # Auth (MLFLOW_TRACKING_USERNAME / MLFLOW_TRACKING_PASSWORD) lives in .env
+  # The MLFLOW_TRACKING_URI env var, if set, overrides this value.

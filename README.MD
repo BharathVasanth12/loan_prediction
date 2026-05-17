@@ -5,7 +5,34 @@ demographics + employment profile. Production-style scaffolding: modular
 pipeline, MLflow tracking, DVC + DagsHub for data/model versioning, and a
 FastAPI web UI for interactive scoring.
 
-> Part of a Medium series on transitioning from **DevOps → MLOps**.
+
+![Architecture](architecture.png)
+
+---
+
+## 🔄 End-to-end flow
+
+1. **Ingest** — `kagglehub` downloads the raw CSVs into `data/raw/`.
+2. **Preprocess** — drop unused cols, impute, cap outliers (IQR), de-skew
+   (Yeo-Johnson), one-hot + target encode categoricals. Fitted artifacts are
+   kept on the `DataPreprocessing` instance so the same transforms can be
+   reused at inference time.
+3. **Feature engineering** — train/test split, SMOTE rebalancing on the
+   training fold, `StandardScaler` fit on training features.
+4. **Train** — `CatBoostClassifier` is fit on the balanced, scaled training
+   set.
+5. **Bundle & persist** — `model`, `preprocessor`, `scaler`,
+   `feature_columns`, and metadata are pickled into a single
+   `artifacts/model.joblib` so deployment needs **one file**.
+6. **Evaluate** — accuracy / precision / recall / F1 / ROC-AUC on train &
+   test, plus confusion-matrix and ROC-curve PNGs.
+7. **Track** — `MLflow` logs params, metrics, datasets (raw + processed),
+   plot artifacts, and the signed model to the **DagsHub** tracking server.
+8. **Version data & artifacts** — `DVC` tracks the contents of `data/` and
+   `artifacts/`; the heavy files live on the DagsHub remote, only small
+   `.dvc` pointer files go to Git.
+9. **Serve** — `FastAPI` loads the bundle once at startup and exposes a
+   dark-themed web UI plus a JSON API for scoring new applicants.
 
 ---
 
@@ -101,7 +128,7 @@ Open **http://127.0.0.1:8000**.
 The UI offers:
 - **Collapsible left sidebar** — model name, hyperparameters, train/test metrics (tabbed)
 - **Main form** — 11 raw features with sensible defaults
-- **Animated result card** — probability meter + confidence %
+- **Animated result card** — probability meter + confidence
 
 ### 4. View experiments (MLflow UI)
 

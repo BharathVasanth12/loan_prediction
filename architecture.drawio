@@ -1,0 +1,136 @@
+<mxfile host="app.diagrams.net" modified="2026-05-17T20:45:00.000Z" agent="manual" version="24.0.0" type="device">
+  <diagram name="loan-default-mlops" id="flow">
+    <mxGraphModel dx="1422" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="980" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ================= LANE: DATA ================= -->
+        <mxCell id="lane-data" value="DATA LAYER" style="swimlane;fontStyle=1;fontSize=13;startSize=28;fillColor=#dae8fc;strokeColor=#6c8ebf;horizontal=1;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="1420" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="kaggle" value="Kaggle&#10;(kagglehub)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="lane-data">
+          <mxGeometry x="30" y="65" width="120" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ingest" value="DataIngestion" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" vertex="1" parent="lane-data">
+          <mxGeometry x="200" y="70" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="raw" value="data/raw/&#10;(DVC tracked)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="lane-data">
+          <mxGeometry x="400" y="65" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="preprocess" value="DataPreprocessing&#10;impute / clip / de-skew&#10;encode" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" vertex="1" parent="lane-data">
+          <mxGeometry x="590" y="60" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="processed" value="data/processed/&#10;(DVC tracked)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="lane-data">
+          <mxGeometry x="820" y="65" width="150" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="featureeng" value="FeatureEngineer&#10;split · SMOTE · scale" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" vertex="1" parent="lane-data">
+          <mxGeometry x="1020" y="65" width="180" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- ================= LANE: MODEL ================= -->
+        <mxCell id="lane-train" value="MODEL LAYER" style="swimlane;fontStyle=1;fontSize=13;startSize=28;fillColor=#fff2cc;strokeColor=#d6b656;horizontal=1;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="240" width="1420" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="orchestrator" value="src/main.py&#10;orchestrator&#10;(inline MLflow)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;" vertex="1" parent="lane-train">
+          <mxGeometry x="30" y="55" width="160" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="trainer" value="ModelTrainer.fit()&#10;CatBoostClassifier" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="lane-train">
+          <mxGeometry x="260" y="65" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="evaluator" value="ModelEvaluator&#10;metrics + CM/ROC plots" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="lane-train">
+          <mxGeometry x="500" y="65" width="200" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="bundle" value="artifacts/model.joblib&#10;{ model, preprocessor,&#10;scaler, feature_columns }" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="lane-train">
+          <mxGeometry x="780" y="55" width="220" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="metrics" value="metrics.json&#10;confusion_matrix.png&#10;roc_curve.png" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="lane-train">
+          <mxGeometry x="1080" y="55" width="200" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- ================= LANE: TRACKING ================= -->
+        <mxCell id="lane-track" value="TRACKING &amp; VERSIONING" style="swimlane;fontStyle=1;fontSize=13;startSize=28;fillColor=#f8cecc;strokeColor=#b85450;horizontal=1;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="440" width="1420" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="mlflow" value="MLflow&#10;params · metrics · datasets&#10;model (signed)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;" vertex="1" parent="lane-track">
+          <mxGeometry x="30" y="60" width="220" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="github" value="GitHub&#10;code only" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="lane-track">
+          <mxGeometry x="380" y="60" width="160" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="dvc" value="DVC&#10;tracks data/ &amp; artifacts/&#10;.dvc pointers → Git" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;" vertex="1" parent="lane-track">
+          <mxGeometry x="780" y="60" width="220" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="dagshub" value="DagsHub&#10;code · DVC remote · MLflow" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;" vertex="1" parent="lane-track">
+          <mxGeometry x="1080" y="55" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- ================= LANE: SERVE ================= -->
+        <mxCell id="lane-serve" value="SERVING LAYER" style="swimlane;fontStyle=1;fontSize=13;startSize=28;fillColor=#e1d5e7;strokeColor=#9673a6;horizontal=1;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="640" width="1420" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="fastapi" value="FastAPI&#10;src/app.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;" vertex="1" parent="lane-serve">
+          <mxGeometry x="30" y="70" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="loadbundle" value="loads model.joblib&#10;at startup" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;dashed=1;" vertex="1" parent="lane-serve">
+          <mxGeometry x="250" y="70" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="transform" value="preprocessor.transform()&#10;scaler.transform()&#10;model.predict_proba()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;" vertex="1" parent="lane-serve">
+          <mxGeometry x="490" y="65" width="240" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ui" value="Web UI&#10;index.html + style.css + app.js" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;" vertex="1" parent="lane-serve">
+          <mxGeometry x="790" y="70" width="220" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="user" value="End user&#10;(browser / curl)" style="shape=actor;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="lane-serve">
+          <mxGeometry x="1110" y="55" width="60" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- =========================== EDGES (orthogonal, rounded) =========================== -->
+
+        <!-- DATA lane: left-to-right -->
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="lane-data" source="kaggle" target="ingest"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="lane-data" source="ingest" target="raw"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="lane-data" source="raw" target="preprocess"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="lane-data" source="preprocess" target="processed"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="lane-data" source="processed" target="featureeng"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- DATA → MODEL: drop straight down -->
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="featureeng" target="trainer"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- MODEL lane: left-to-right -->
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="lane-train" source="orchestrator" target="trainer"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="lane-train" source="trainer" target="evaluator"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="lane-train" source="evaluator" target="bundle"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e10" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="lane-train" source="bundle" target="metrics"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- MODEL → TRACKING (clean vertical drops) -->
+        <mxCell id="e11" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#b85450;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="orchestrator" target="mlflow"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e12" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#b85450;exitX=0.5;exitY=1;entryX=0.25;entryY=0;" edge="1" parent="1" source="bundle" target="dvc"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e13" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#b85450;exitX=0.5;exitY=1;entryX=0.75;entryY=0;" edge="1" parent="1" source="metrics" target="dvc"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- TRACKING lane: mlflow → github (code) ; dvc → dagshub (data) -->
+        <mxCell id="e14" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="lane-track" source="mlflow" target="github"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e15" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="lane-track" source="dvc" target="dagshub"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e16" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;exitX=1;exitY=0.5;entryX=0;entryY=0.7;" edge="1" parent="lane-track" source="github" target="dvc"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- BUNDLE → SERVE (dashed deploy arrow with explicit waypoints to avoid crossings) -->
+        <mxCell id="e17" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;strokeColor=#9673a6;exitX=0;exitY=0.5;entryX=0.5;entryY=0;" edge="1" parent="1" source="bundle" target="loadbundle">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="700" y="350" />
+              <mxPoint x="700" y="620" />
+              <mxPoint x="340" y="620" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- SERVE lane: left-to-right -->
+        <mxCell id="e18" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="lane-serve" source="fastapi" target="loadbundle"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e19" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="lane-serve" source="loadbundle" target="transform"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e20" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="lane-serve" source="transform" target="ui"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e21" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;startArrow=classic;startFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="lane-serve" source="ui" target="user"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
