@@ -1,0 +1,91 @@
+# ============================================================
+# .gitignore — Python / MLOps project (DagsHub + DVC + MLflow)
+# Strategy: Git tracks CODE and .dvc pointer files only.
+# Large data + artifacts are versioned via DVC and pushed to
+# the DagsHub remote — NEVER committed to Git directly.
+# ============================================================
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+
+# ---------- Virtual environments ----------
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# ---------- Environment / secrets ----------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+
+# ---------- Jupyter ----------
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ---------- IDE ----------
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ---------- Testing / coverage ----------
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.mypy_cache/
+.ruff_cache/
+
+# ============================================================
+# DATA & ARTIFACTS — tracked by DVC, pushed to DagsHub
+# Git only sees the .dvc pointer files (NOT ignored).
+# ============================================================
+
+# Raw + processed data
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/**/*.dvc
+
+# Model bundle, metrics, plots
+artifacts/*
+!artifacts/.gitkeep
+!artifacts/*.dvc
+
+# MLflow local store (use DagsHub MLflow tracking server instead)
+mlruns/
+mlartifacts/
+mlflow.db
+mlflow.db-journal
+
+# CatBoost training logs (regenerated on every fit)
+catboost_info/
+
+# DVC internals (cache is local; remote config IS tracked)
+/.dvc/cache
+/.dvc/tmp
+/.dvc/plots
+# Keep:  /.dvc/config  (tracked)
+# Keep:  *.dvc         (tracked — these are the pointers)
+
+# ---------- Logs ----------
+*.log
+logs/

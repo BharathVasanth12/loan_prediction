@@ -1,0 +1,15 @@
+pandas
+numpy
+scikit-learn
+matplotlib
+seaborn
+python-dotenv
+setuptools
+kagglehub
+pyyaml
+imbalanced-learn
+catboost
+joblib
+mlflow
+dvc
+dvc-s3

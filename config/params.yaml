@@ -1,0 +1,46 @@
+# Project-level parameters (committed to git).
+# Secrets / machine-specific values belong in .env, not here.
+
+dataset:
+  name: subhamjain/loan-prediction-based-on-customer-behavior
+  raw_path: data/raw
+  train_file: "Training Data.csv"
+  test_file: "Test Data.csv"
+
+processed:
+  path: data/processed
+  train_file: train_processed.csv
+  test_file: test_processed.csv
+
+split:
+  target_column: Risk_Flag
+  test_size: 0.2
+  random_state: 42
+  stratify: true
+
+balancing:
+  method: smote
+  sampling_strategy: not majority
+  random_state: 42
+
+scaling:
+  method: standard
+
+model:
+  name: catboost
+  params:
+    iterations: 500
+    learning_rate: 0.05
+    depth: 6
+    random_seed: 42
+    verbose: 0
+
+artifacts:
+  path: artifacts
+  scaler_file: scaler.pkl
+  model_file: model.joblib
+  metrics_file: metrics.json
+
+mlflow:
+  experiment_name: loan_default_prediction
+  # tracking_uri: ""   # leave blank for local ./mlruns, or set MLFLOW_TRACKING_URI env var (e.g. DagsHub)

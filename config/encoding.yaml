@@ -1,0 +1,29 @@
+# Categorical encoding plan
+# Each entry: encoder type → list of columns to apply it to
+# Optional `params` for encoder-specific arguments
+
+target_column: Risk_Flag
+drop_columns:
+  - Id
+
+encoders:
+  onehot:
+    columns:
+      - Married/Single
+      - Car_Ownership
+      - House_Ownership
+    params:
+      drop: first
+      handle_unknown: ignore
+      sparse_output: false
+
+  target:
+    columns:
+      - STATE
+      - Profession
+      - CITY
+    params:
+      target_type: binary
+      cv: 5
+      smooth: auto
+      random_state: 42
