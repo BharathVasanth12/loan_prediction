@@ -1,0 +1,28 @@
+architecture.drawio
+  s_ab7dbf43beca5f::t_098a81b6050b6e 1-136
+config/params.yaml
+  h_a8aabed4b6be09 46-48
+README.MD
+  s_ab7dbf43beca5f::t_36336467b38432 9-35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "e868db77e955eecf2696c953502444e0fcaf9d7e",
+  "prompts": {},
+  "humans": {
+    "h_a8aabed4b6be09": {
+      "author": "bhavasan_cisco <bhavasan+cisco@cisco.com>"
+    }
+  },
+  "sessions": {
+    "s_ab7dbf43beca5f": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "ae2009e1-2ebc-40d7-a91d-f9e695b14a8e",
+        "model": "gpt-4.1"
+      },
+      "human_author": "bhavasan_cisco <bhavasan+cisco@cisco.com>"
+    }
+  }
+}
