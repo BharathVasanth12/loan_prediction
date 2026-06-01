@@ -3,7 +3,7 @@
 Usage:
     python -m src.main
     python -m src.main --force-download
-    python -m src.main --run-name "catboost-baseline"
+    python -m src.main --run-name "gradient-boosting-baseline"
 
 Tracking URI resolution:
     1. MLFLOW_TRACKING_URI env var (recommended for DagsHub / remote)
@@ -22,9 +22,9 @@ warnings.filterwarnings("ignore", message=".*UCVolumeDatasetSource.*")
 warnings.filterwarnings("ignore", message=".*LocalArtifactDatasetSource.*")
 warnings.filterwarnings("ignore", message=".*Inferred schema contains integer column.*")
 
-import mlflow
-from mlflow.models import infer_signature
-
+# IMPORTANT: import src.config BEFORE mlflow so that load_dotenv() runs and
+# MLFLOW_TRACKING_USERNAME / MLFLOW_TRACKING_PASSWORD are present in os.environ
+# when mlflow first reads them.
 from src.config import (
     DATASET_NAME,
     PROCESSED_PATH,
@@ -45,6 +45,9 @@ from src.config import (
     STRATIFY,
     TARGET_COLUMN,
 )
+
+import mlflow
+from mlflow.models import infer_signature
 from src.data_ingestion import DataIngestion
 from src.preprocessing import DataPreprocessing
 from src.feature_engineering import FeatureEngineer
@@ -151,8 +154,8 @@ def run_pipeline(force_download: bool = False, run_name: str | None = None) -> d
         # ---- Log model with signature + input example ----
         X_sample = X_train.head(5)
         signature = infer_signature(X_sample, model.predict(X_sample))
-        mlflow.catboost.log_model(
-            cb_model=model,
+        mlflow.sklearn.log_model(
+            sk_model=model,
             name="model",
             signature=signature,
             input_example=X_sample,

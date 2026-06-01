@@ -1,7 +1,14 @@
 from src.utils import load_dataset
 from src.logger import logging, log_section
-from src.config import ENCODING_CONFIG, PROCESSED_PATH, TRAIN_PROCESSED_PATH, TEST_PROCESSED_PATH
+from src.config import (
+    ENCODING_CONFIG,
+    PROCESSED_PATH,
+    TRAIN_PROCESSED_PATH,
+    ARTIFACTS_PATH,
+    PREPROCESSOR_PATH,
+)
 import os
+import joblib
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import (
@@ -371,14 +378,15 @@ class DataPreprocessing:
         return self.df
 
 if __name__ == "__main__":
-    output_paths = {
-        "train": TRAIN_PROCESSED_PATH,
-        "test": TEST_PROCESSED_PATH,
-    }
+    # DVC stage entry point: writes processed CSV + pickled fitted preprocessor.
     os.makedirs(PROCESSED_PATH, exist_ok=True)
+    os.makedirs(ARTIFACTS_PATH, exist_ok=True)
 
-    for dataset_type, output_path in output_paths.items():
-        preprocessor = DataPreprocessing(dataset_type=dataset_type)
-        processed_df = preprocessor.run()
-        processed_df.to_csv(output_path, index=False)
-        logging.info(f"Processed {dataset_type} data saved to '{output_path}'")
+    preprocessor = DataPreprocessing(dataset_type="train")
+    processed_df = preprocessor.run()
+
+    processed_df.to_csv(TRAIN_PROCESSED_PATH, index=False)
+    logging.info(f"Processed train data saved to '{TRAIN_PROCESSED_PATH}' (shape={processed_df.shape})")
+
+    joblib.dump(preprocessor, PREPROCESSOR_PATH)
+    logging.info(f"Fitted preprocessor saved to '{PREPROCESSOR_PATH}'")

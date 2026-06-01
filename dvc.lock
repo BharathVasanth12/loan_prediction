@@ -1,0 +1,213 @@
+schema: '2.0'
+stages:
+  preprocess:
+    cmd: python3 -m src.preprocessing
+    deps:
+    - path: config/encoding.yaml
+      hash: md5
+      md5: 9e0dff17524daa222fdc714a4ede1a6a
+      size: 539
+    - path: data/raw/Training Data.csv
+      hash: md5
+      md5: 1910f8d197f390a5f21e320ae5611f67
+      size: 20119553
+    - path: src/config.py
+      hash: md5
+      md5: 9fb9da8cbb0834c849725f484d12e080
+      size: 2923
+    - path: src/logger.py
+      hash: md5
+      md5: 5a4125723193b0b333083d87b89bed79
+      size: 911
+    - path: src/preprocessing.py
+      hash: md5
+      md5: 9a24408579ba58c5a6fd3b1368e9e6b1
+      size: 17021
+    - path: src/utils.py
+      hash: md5
+      md5: 73ada78a94bdbdaae7d4ae6c7b8c7bff
+      size: 1807
+    params:
+      config/params.yaml:
+        dataset:
+          name: subhamjain/loan-prediction-based-on-customer-behavior
+          raw_path: data/raw
+          train_file: Training Data.csv
+          test_file: Test Data.csv
+        processed:
+          path: data/processed
+          train_file: train_processed.csv
+          test_file: test_processed.csv
+    outs:
+    - path: artifacts/preprocessor.joblib
+      hash: md5
+      md5: dd9975bb6eaeaef08732d4e13b435f34
+      size: 4504790
+    - path: data/processed/train_processed.csv
+      hash: md5
+      md5: cb9223cd2937fd1245ed4c61861e7ff5
+      size: 4137668
+  feature_engineering:
+    cmd: python3 -m src.feature_engineering
+    deps:
+    - path: data/processed/train_processed.csv
+      hash: md5
+      md5: cb9223cd2937fd1245ed4c61861e7ff5
+      size: 4137668
+    - path: src/config.py
+      hash: md5
+      md5: 9fb9da8cbb0834c849725f484d12e080
+      size: 2923
+    - path: src/feature_engineering.py
+      hash: md5
+      md5: cd767db6f93db1eeef845b95daca05bf
+      size: 4438
+    - path: src/logger.py
+      hash: md5
+      md5: 5a4125723193b0b333083d87b89bed79
+      size: 911
+    - path: src/utils.py
+      hash: md5
+      md5: 73ada78a94bdbdaae7d4ae6c7b8c7bff
+      size: 1807
+    params:
+      config/params.yaml:
+        balancing:
+          method: smote
+          sampling_strategy: not majority
+          random_state: 42
+        intermediate:
+          splits_dir: data/processed/splits
+          x_train_file: X_train.csv
+          x_test_file: X_test.csv
+          y_train_file: y_train.csv
+          y_test_file: y_test.csv
+        scaling:
+          method: standard
+        split:
+          target_column: Risk_Flag
+          test_size: 0.2
+          random_state: 42
+          stratify: true
+    outs:
+    - path: artifacts/scaler.pkl
+      hash: md5
+      md5: 06ea1c98b3674980c652b42e881e2977
+      size: 1335
+    - path: data/processed/splits
+      hash: md5
+      md5: 08a617672423aeed57ce25b501ef1ef9.dir
+      size: 15251519
+      nfiles: 4
+  train:
+    cmd: python3 -m src.model
+    deps:
+    - path: artifacts/preprocessor.joblib
+      hash: md5
+      md5: dd9975bb6eaeaef08732d4e13b435f34
+      size: 4504790
+    - path: artifacts/scaler.pkl
+      hash: md5
+      md5: 06ea1c98b3674980c652b42e881e2977
+      size: 1335
+    - path: data/processed/splits
+      hash: md5
+      md5: 08a617672423aeed57ce25b501ef1ef9.dir
+      size: 15251519
+      nfiles: 4
+    - path: src/config.py
+      hash: md5
+      md5: 9fb9da8cbb0834c849725f484d12e080
+      size: 2923
+    - path: src/logger.py
+      hash: md5
+      md5: 5a4125723193b0b333083d87b89bed79
+      size: 911
+    - path: src/model.py
+      hash: md5
+      md5: 5920f1607092ca45cf9be1780204109e
+      size: 3346
+    params:
+      config/params.yaml:
+        model:
+          name: gradient_boosting
+          params:
+            n_estimators: 200
+            learning_rate: 0.1
+            max_depth: 3
+            min_samples_split: 2
+            min_samples_leaf: 1
+            random_state: 42
+    outs:
+    - path: artifacts/model.joblib
+      hash: md5
+      md5: 89ee2abc2b651f92f294db1e3ca7a91a
+      size: 4779549
+  evaluate:
+    cmd: python3 -m src.evaluation
+    deps:
+    - path: artifacts/model.joblib
+      hash: md5
+      md5: 89ee2abc2b651f92f294db1e3ca7a91a
+      size: 4779549
+    - path: data/processed/splits
+      hash: md5
+      md5: 08a617672423aeed57ce25b501ef1ef9.dir
+      size: 15251519
+      nfiles: 4
+    - path: src/config.py
+      hash: md5
+      md5: 9fb9da8cbb0834c849725f484d12e080
+      size: 2923
+    - path: src/evaluation.py
+      hash: md5
+      md5: bbf089ebd8e20bb513f0eeca23a05416
+      size: 6233
+    - path: src/logger.py
+      hash: md5
+      md5: 5a4125723193b0b333083d87b89bed79
+      size: 911
+    outs:
+    - path: artifacts/confusion_matrix.png
+      hash: md5
+      md5: 4cc48726a02cd7d35e2ed87faccd67e9
+      size: 21622
+    - path: artifacts/metrics.json
+      hash: md5
+      md5: 0396349391846fe44ebdadb99aeaeb4d
+      size: 617
+    - path: artifacts/roc_curve.png
+      hash: md5
+      md5: dc1c24bf54725b31173b4c0b3b806be6
+      size: 40259
+  data_ingestion:
+    cmd: python3 -m src.data_ingestion
+    deps:
+    - path: src/config.py
+      hash: md5
+      md5: 9fb9da8cbb0834c849725f484d12e080
+      size: 2923
+    - path: src/data_ingestion.py
+      hash: md5
+      md5: 217d334102fa484388ba594e4456b746
+      size: 1074
+    - path: src/logger.py
+      hash: md5
+      md5: 5a4125723193b0b333083d87b89bed79
+      size: 911
+    params:
+      config/params.yaml:
+        dataset:
+          name: subhamjain/loan-prediction-based-on-customer-behavior
+          raw_path: data/raw
+          train_file: Training Data.csv
+          test_file: Test Data.csv
+    outs:
+    - path: data/raw/Test Data.csv
+      hash: md5
+      md5: fc23077f34565ef25b59dfa23e1a00e8
+      size: 2155042
+    - path: data/raw/Training Data.csv
+      hash: md5
+      md5: 1910f8d197f390a5f21e320ae5611f67
+      size: 20119553

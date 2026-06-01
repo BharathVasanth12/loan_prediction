@@ -40,8 +40,17 @@ ARTIFACTS_PATH: str = os.path.join(PROJECT_ROOT, _artifacts["path"])
 SCALER_PATH: str = os.path.join(ARTIFACTS_PATH, _artifacts["scaler_file"])
 MODEL_PATH: str = os.path.join(ARTIFACTS_PATH, _artifacts["model_file"])
 METRICS_PATH: str = os.path.join(ARTIFACTS_PATH, _artifacts["metrics_file"])
+PREPROCESSOR_PATH: str = os.path.join(ARTIFACTS_PATH, _artifacts.get("preprocessor_file", "preprocessor.joblib"))
 CM_PLOT_PATH: str = os.path.join(ARTIFACTS_PATH, "confusion_matrix.png")
 ROC_PLOT_PATH: str = os.path.join(ARTIFACTS_PATH, "roc_curve.png")
+
+# Intermediate split artifacts (produced by feature_engineering stage, consumed by train/evaluate)
+_intermediate = _params.get("intermediate", {}) or {}
+SPLITS_DIR: str = os.path.join(PROJECT_ROOT, _intermediate.get("splits_dir", "data/processed/splits"))
+X_TRAIN_PATH: str = os.path.join(SPLITS_DIR, _intermediate.get("x_train_file", "X_train.csv"))
+X_TEST_PATH: str = os.path.join(SPLITS_DIR, _intermediate.get("x_test_file", "X_test.csv"))
+Y_TRAIN_PATH: str = os.path.join(SPLITS_DIR, _intermediate.get("y_train_file", "y_train.csv"))
+Y_TEST_PATH: str = os.path.join(SPLITS_DIR, _intermediate.get("y_test_file", "y_test.csv"))
 
 # MLflow
 _mlflow = _params.get("mlflow", {}) or {}

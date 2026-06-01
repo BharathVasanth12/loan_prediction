@@ -1,29 +1,40 @@
 import os
 import joblib
-from catboost import CatBoostClassifier
+from sklearn.ensemble import GradientBoostingClassifier
 import pandas as pd
 
-from src.config import ARTIFACTS_PATH, MODEL_CONFIG, MODEL_PATH
+from src.config import (
+    ARTIFACTS_PATH,
+    MODEL_CONFIG,
+    MODEL_PATH,
+    PREPROCESSOR_PATH,
+    SCALER_PATH,
+    X_TRAIN_PATH,
+    Y_TRAIN_PATH,
+)
 from src.logger import logging, log_section
 from src.preprocessing import DataPreprocessing
 from src.feature_engineering import FeatureEngineer
+
+_SUPPORTED_MODELS = {"gradient_boosting", "gradientboosting", "gb"}
+
 
 class ModelTrainer:
     """Train and persist the configured classifier as a single bundle."""
 
     def __init__(self):
-        self.model_name: str = MODEL_CONFIG.get("name", "catboost").lower()
+        self.model_name: str = MODEL_CONFIG.get("name", "gradient_boosting").lower()
         self.params: dict = dict(MODEL_CONFIG.get("params", {}) or {})
-        self.model: CatBoostClassifier | None = None
+        self.model: GradientBoostingClassifier | None = None
 
-    def fit(self, X_train: pd.DataFrame, y_train: pd.Series) -> CatBoostClassifier:
-        log_section("Step: fit (CatBoost)")
-        if self.model_name != "catboost":
+    def fit(self, X_train: pd.DataFrame, y_train: pd.Series) -> GradientBoostingClassifier:
+        log_section("Step: fit (GradientBoosting)")
+        if self.model_name not in _SUPPORTED_MODELS:
             raise ValueError(
-                f"Model '{self.model_name}' not supported. Only 'catboost' is wired up."
+                f"Model '{self.model_name}' not supported. Only 'gradient_boosting' is wired up."
             )
-        self.model = CatBoostClassifier(**self.params)
-        logging.info(f"Built CatBoostClassifier with params: {self.params}")
+        self.model = GradientBoostingClassifier(**self.params)
+        logging.info(f"Built GradientBoostingClassifier with params: {self.params}")
         self.model.fit(X_train, y_train)
         logging.info(f"Model trained on {X_train.shape[0]} rows")
         return self.model
@@ -45,7 +56,7 @@ class ModelTrainer:
         joblib.dump(artifact, MODEL_PATH)
         logging.info(f"Bundle saved to {MODEL_PATH} (keys: {list(artifact.keys())})")
 
-    def run(self, X_train: pd.DataFrame, y_train: pd.Series, preprocessor: DataPreprocessing, feature_columns: list[str], scaler=None) -> CatBoostClassifier:
+    def run(self, X_train: pd.DataFrame, y_train: pd.Series, preprocessor: DataPreprocessing, feature_columns: list[str], scaler=None) -> GradientBoostingClassifier:
         self.fit(X_train, y_train)
         self.save(preprocessor=preprocessor, feature_columns=feature_columns, scaler=scaler)
         assert self.model is not None
@@ -53,20 +64,21 @@ class ModelTrainer:
 
 
 if __name__ == "__main__":
-    # 1. Preprocess (fits encoders, outlier bounds, skew transformers)
-    preprocessor = DataPreprocessing(dataset_type="train")
-    preprocessor.run()
+    # DVC stage entry point: loads splits + fitted preprocessor + scaler from disk,
+    # trains the model, and writes the single-bundle artifact to MODEL_PATH.
+    X_train = pd.read_csv(X_TRAIN_PATH)
+    y_train = pd.read_csv(Y_TRAIN_PATH).squeeze("columns")
+    logging.info(f"Loaded X_train={X_train.shape}, y_train={y_train.shape}")
 
-    # 2. Feature engineering (split + balance)
-    fe = FeatureEngineer()
-    X_train, X_test, y_train, y_test = fe.run()
+    preprocessor = joblib.load(PREPROCESSOR_PATH)
+    scaler = joblib.load(SCALER_PATH) if os.path.exists(SCALER_PATH) else None
 
-    # 3. Train + bundle save
     trainer = ModelTrainer()
     trainer.run(
         X_train=X_train,
         y_train=y_train,
         preprocessor=preprocessor,
         feature_columns=list(X_train.columns),
-        scaler=fe.scaler,
+        scaler=scaler,
     )
+    logging.info(f"Bundle written to '{MODEL_PATH}'")

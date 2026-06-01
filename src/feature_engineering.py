@@ -14,6 +14,11 @@ from src.config import (
     SCALING_CONFIG,
     ARTIFACTS_PATH,
     SCALER_PATH,
+    SPLITS_DIR,
+    X_TRAIN_PATH,
+    X_TEST_PATH,
+    Y_TRAIN_PATH,
+    Y_TEST_PATH,
 )
 from src.utils import load_dataset
 from src.logger import logging, log_section
@@ -97,10 +102,22 @@ class FeatureEngineer:
         # Scaler is NOT saved here — it ships inside the model bundle (see model.py)
         return X_train_scaled, X_test_scaled, y_train_bal, y_test
 
-
 if __name__ == "__main__":
+    # DVC stage entry point: writes train/test split CSVs + fitted scaler.
+    os.makedirs(SPLITS_DIR, exist_ok=True)
+    os.makedirs(ARTIFACTS_PATH, exist_ok=True)
+
     fe = FeatureEngineer()
     X_train, X_test, y_train, y_test = fe.run()
+
+    X_train.to_csv(X_TRAIN_PATH, index=False)
+    X_test.to_csv(X_TEST_PATH, index=False)
+    y_train.to_csv(Y_TRAIN_PATH, index=False)
+    y_test.to_csv(Y_TEST_PATH, index=False)
     logging.info(
-        f"Feature engineering done. X_train={X_train.shape}, X_test={X_test.shape}"
+        f"Splits saved to '{SPLITS_DIR}' (X_train={X_train.shape}, X_test={X_test.shape})"
     )
+
+    if fe.scaler is not None:
+        joblib.dump(fe.scaler, SCALER_PATH)
+        logging.info(f"Fitted scaler saved to '{SCALER_PATH}'")

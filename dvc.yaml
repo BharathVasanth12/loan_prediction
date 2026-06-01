@@ -1,0 +1,97 @@
+# DVC pipeline definition.
+#
+# Each stage runs a module directly via `python -m`; the module's `__main__`
+# block owns its file I/O (loading deps, writing outs). This keeps stage
+# entrypoints colocated with the code they exercise — no stages/ shim folder.
+#
+# Anatomy of a stage:
+#   cmd:    shell command DVC runs. Must be deterministic and write `outs` files.
+#   deps:   input files. If ANY change (hash diff), the stage is re-run.
+#   params: parameter values from a YAML file. If ANY change, the stage is re-run.
+#           Use the dict form when params live outside the default ./params.yaml.
+#   outs:   files/dirs the stage PRODUCES. DVC tracks them; don't git-track them.
+#   metrics: like `outs` but flagged for `dvc metrics show`.
+#   plots:   like `outs` but flagged for `dvc plots show`.
+#
+# DAG: DVC infers stage order automatically from deps -> outs links.
+# Re-run with: `dvc repro` (only stages whose deps/params changed re-execute).
+
+stages:
+  data_ingestion:
+    cmd: python3 -m src.data_ingestion
+    deps:
+      - src/logger.py
+      - src/data_ingestion.py
+      - src/config.py
+    params:
+      - config/params.yaml:
+          - dataset
+    outs:
+      - 'data/raw/Training Data.csv'
+      - 'data/raw/Test Data.csv'
+  preprocess:
+    cmd: python3 -m src.preprocessing
+    deps:
+      - src/preprocessing.py
+      - src/utils.py
+      - src/config.py
+      - src/logger.py
+      - config/encoding.yaml
+      - 'data/raw/Training Data.csv'
+    params:
+      - config/params.yaml:
+          - dataset
+          - processed
+    outs:
+      - data/processed/train_processed.csv
+      - artifacts/preprocessor.joblib
+
+  feature_engineering:
+    cmd: python3 -m src.feature_engineering
+    deps:
+      - src/feature_engineering.py
+      - src/utils.py
+      - src/config.py
+      - src/logger.py
+      - data/processed/train_processed.csv
+    params:
+      - config/params.yaml:
+          - split
+          - balancing
+          - scaling
+          - intermediate
+    outs:
+      - data/processed/splits
+      - artifacts/scaler.pkl
+
+  train:
+    cmd: python3 -m src.model
+    deps:
+      - src/model.py
+      - src/config.py
+      - src/logger.py
+      - data/processed/splits
+      - artifacts/preprocessor.joblib
+      - artifacts/scaler.pkl
+    params:
+      - config/params.yaml:
+          - model
+    outs:
+      - artifacts/model.joblib
+
+  evaluate:
+    cmd: python3 -m src.evaluation
+    deps:
+      - src/evaluation.py
+      - src/config.py
+      - src/logger.py
+      - data/processed/splits
+      - artifacts/model.joblib
+    metrics:
+      - artifacts/metrics.json:
+          cache: false
+    plots:
+      - artifacts/confusion_matrix.png:
+          cache: false
+      - artifacts/roc_curve.png:
+          cache: false

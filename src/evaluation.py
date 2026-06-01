@@ -15,7 +15,17 @@ from sklearn.metrics import (
     RocCurveDisplay,
 )
 
-from src.config import ARTIFACTS_PATH, METRICS_PATH, CM_PLOT_PATH, ROC_PLOT_PATH
+from src.config import (
+    ARTIFACTS_PATH,
+    METRICS_PATH,
+    CM_PLOT_PATH,
+    ROC_PLOT_PATH,
+    MODEL_PATH,
+    X_TRAIN_PATH,
+    X_TEST_PATH,
+    Y_TRAIN_PATH,
+    Y_TEST_PATH,
+)
 from src.logger import logging, log_section
 
 
@@ -131,14 +141,18 @@ class ModelEvaluator:
         return report
 
 if __name__ == "__main__":
-    from src.feature_engineering import FeatureEngineer
-    from src.model import ModelTrainer
+    # DVC stage entry point: loads trained bundle + splits from disk,
+    # writes metrics.json + confusion matrix + ROC plots.
+    import joblib
 
-    fe = FeatureEngineer()
-    X_train, X_test, y_train, y_test = fe.run()
+    X_train = pd.read_csv(X_TRAIN_PATH)
+    X_test = pd.read_csv(X_TEST_PATH)
+    y_train = pd.read_csv(Y_TRAIN_PATH).squeeze("columns")
+    y_test = pd.read_csv(Y_TEST_PATH).squeeze("columns")
 
-    trainer = ModelTrainer()
-    model = trainer.run(X_train, y_train)
+    bundle = joblib.load(MODEL_PATH)
+    model = bundle["model"] if isinstance(bundle, dict) and "model" in bundle else bundle
 
     evaluator = ModelEvaluator(model)
     evaluator.run(X_train, y_train, X_test, y_test)
+    logging.info(f"Metrics written to '{METRICS_PATH}'")
