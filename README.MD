@@ -102,20 +102,67 @@ MLFLOW_TRACKING_USERNAME=<user>
 MLFLOW_TRACKING_PASSWORD=<dagshub-token>
 ```
 
-### 2. Train the model
+### 2. Train the model (DVC pipeline)
+
+The whole pipeline is declared in [dvc.yaml](dvc.yaml) as 5 stages:
+`data_ingestion → preprocess → feature_engineering → train → evaluate`.
+
+**Run end-to-end (recommended):**
 
 ```bash
-python -m src.main                          # uses cached data if present
-python -m src.main --force-download         # re-pull from Kaggle
-python -m src.main --run-name "baseline"    # custom MLflow run name
+dvc repro                  # runs only stages whose deps/params changed
+dvc repro -f               # force re-run everything
+dvc repro <stage_name>     # run a single stage + its upstream
 ```
 
-Produces:
+DVC reads `dvc.lock` to skip stages whose inputs (code, params, data) are unchanged.
+
+**Inspect the pipeline:**
+
+```bash
+dvc dag                    # ASCII DAG of stages
+dvc status                 # what would re-run and why
+dvc metrics show           # accuracy/precision/recall/F1/ROC-AUC
+dvc plots show             # opens confusion_matrix.png + roc_curve.png in a browser
+```
+
+**Run a single stage manually** (bypasses DVC tracking — useful for debugging):
+
+```bash
+python3 -m src.data_ingestion
+python3 -m src.preprocessing
+python3 -m src.feature_engineering
+python3 -m src.model
+python3 -m src.evaluation
+```
+
+**Compare experiments:**
+
+```bash
+dvc exp run                          # run pipeline as a new experiment
+dvc exp run -S model.params.depth=8  # override a param for this run only
+dvc exp show                         # table of all experiments + metrics
+dvc exp diff                         # diff metrics/params vs workspace
+```
+
+**Push data + artifacts to the DagsHub remote:**
+
+```bash
+dvc push -r origin         # upload tracked data/ and artifacts/
+dvc pull -r origin         # pull them back on a fresh clone
+```
+
+**Produces:**
+- `data/raw/*.csv` — downloaded by the `data_ingestion` stage
+- `data/processed/train_processed.csv` + `data/processed/splits/` — preprocess + feature_engineering
+- `artifacts/preprocessor.joblib`, `artifacts/scaler.pkl` — fitted transformers
 - `artifacts/model.joblib` — single-file bundle (model + preprocessor + scaler + metadata)
-- `artifacts/metrics.json` — train/test accuracy, precision, recall, F1, ROC-AUC
-- `artifacts/confusion_matrix.png` — train + test side-by-side
-- `artifacts/roc_curve.png` — train + test overlay
+- `artifacts/metrics.json` — DVC-tracked metrics
+- `artifacts/confusion_matrix.png`, `artifacts/roc_curve.png` — DVC-tracked plots
 - MLflow run with params, metrics, datasets, and signed model
+
+> **Note:** `python3 -m src.main` still works (legacy orchestrator with MLflow logging),
+> but `dvc repro` is the canonical entrypoint going forward.
 
 ### 3. Launch the UI
 
