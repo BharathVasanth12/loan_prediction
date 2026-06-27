@@ -5,6 +5,7 @@ Run:
 
 Open http://localhost:8000
 """
+
 from __future__ import annotations
 
 import json
@@ -19,7 +20,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
 
-from src.config import MODEL_PATH, METRICS_PATH
+from src.config import METRICS_PATH, MODEL_PATH
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "static")
@@ -94,7 +95,9 @@ def _predict(payload: dict[str, Any]) -> dict[str, Any]:
         "prediction": pred,
         "label": label,
         "probability_default": proba,
-        "confidence": round((proba if pred == 1 else 1 - proba) * 100, 2) if proba is not None else None,
+        "confidence": round((proba if pred == 1 else 1 - proba) * 100, 2)
+        if proba is not None
+        else None,
     }
 
 
@@ -120,7 +123,7 @@ def model_info():
         "model_params": MODEL_PARAMS,
         "feature_count": len(FEATURE_COLUMNS),
         "metrics": METRICS,
-    } # type: ignore
+    }  # type: ignore
 
 
 @app.post("/api/predict")

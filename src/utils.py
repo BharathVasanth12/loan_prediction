@@ -1,7 +1,9 @@
 import os
 from typing import Any
+
 import pandas as pd
 import yaml
+
 from src.logger import logging
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -9,10 +11,10 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def load_yaml_config(filename: str) -> dict[str, Any]:
     """Load a YAML config file from the project's config/ directory."""
-    path = os.path.join(BASE_DIR, '..', 'config', filename)
+    path = os.path.join(BASE_DIR, "..", "config", filename)
     if not os.path.exists(path):
         raise FileNotFoundError(f"Config file not found: {path}")
-    with open(path, 'r') as f:
+    with open(path) as f:
         return yaml.safe_load(f)
 
 
@@ -27,10 +29,10 @@ def load_dataset(dataset_type: str) -> pd.DataFrame:
     """
     # Imported lazily to avoid circular import with src.config
     from src.config import (
-        TRAIN_DATA_PATH,
         TEST_DATA_PATH,
-        TRAIN_PROCESSED_PATH,
         TEST_PROCESSED_PATH,
+        TRAIN_DATA_PATH,
+        TRAIN_PROCESSED_PATH,
     )
 
     paths = {
@@ -40,9 +42,7 @@ def load_dataset(dataset_type: str) -> pd.DataFrame:
         "test_processed": TEST_PROCESSED_PATH,
     }
     if dataset_type not in paths:
-        raise ValueError(
-            f"Invalid dataset type: '{dataset_type}'. Expected one of {list(paths)}"
-        )
+        raise ValueError(f"Invalid dataset type: '{dataset_type}'. Expected one of {list(paths)}")
 
     path = paths[dataset_type]
     if not os.path.exists(path):

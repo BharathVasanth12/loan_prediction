@@ -13,20 +13,20 @@ stages:
       size: 20119553
     - path: src/config.py
       hash: md5
-      md5: 9fb9da8cbb0834c849725f484d12e080
-      size: 2923
+      md5: 52ae96471220264c466a2555f745e21a
+      size: 2937
     - path: src/logger.py
       hash: md5
-      md5: 5a4125723193b0b333083d87b89bed79
-      size: 911
+      md5: 5f427d4cf05deb98248c1eaa9d7df8f4
+      size: 890
     - path: src/preprocessing.py
       hash: md5
-      md5: 9a24408579ba58c5a6fd3b1368e9e6b1
-      size: 17021
+      md5: 71703f2815dc89f3ebda26071aa93586
+      size: 17371
     - path: src/utils.py
       hash: md5
-      md5: 73ada78a94bdbdaae7d4ae6c7b8c7bff
-      size: 1807
+      md5: 4ffc05e6747929dc2189ec2f54f1943d
+      size: 1783
     params:
       config/params.yaml:
         dataset:
@@ -56,20 +56,20 @@ stages:
       size: 4137668
     - path: src/config.py
       hash: md5
-      md5: 9fb9da8cbb0834c849725f484d12e080
-      size: 2923
+      md5: 52ae96471220264c466a2555f745e21a
+      size: 2937
     - path: src/feature_engineering.py
       hash: md5
-      md5: cd767db6f93db1eeef845b95daca05bf
-      size: 4438
+      md5: ec62455e1c16155a5b87f6c5c0c697a8
+      size: 4416
     - path: src/logger.py
       hash: md5
-      md5: 5a4125723193b0b333083d87b89bed79
-      size: 911
+      md5: 5f427d4cf05deb98248c1eaa9d7df8f4
+      size: 890
     - path: src/utils.py
       hash: md5
-      md5: 73ada78a94bdbdaae7d4ae6c7b8c7bff
-      size: 1807
+      md5: 4ffc05e6747929dc2189ec2f54f1943d
+      size: 1783
     params:
       config/params.yaml:
         balancing:
@@ -117,16 +117,16 @@ stages:
       nfiles: 4
     - path: src/config.py
       hash: md5
-      md5: 9fb9da8cbb0834c849725f484d12e080
-      size: 2923
+      md5: 52ae96471220264c466a2555f745e21a
+      size: 2937
     - path: src/logger.py
       hash: md5
-      md5: 5a4125723193b0b333083d87b89bed79
-      size: 911
+      md5: 5f427d4cf05deb98248c1eaa9d7df8f4
+      size: 890
     - path: src/model.py
       hash: md5
-      md5: 5920f1607092ca45cf9be1780204109e
-      size: 3346
+      md5: bec618386b1f0a73a75571a2ac93faec
+      size: 3364
     params:
       config/params.yaml:
         model:
@@ -134,22 +134,22 @@ stages:
           params:
             n_estimators: 200
             learning_rate: 0.1
-            max_depth: 3
-            min_samples_split: 2
+            max_depth: 5
+            min_samples_split: 5
             min_samples_leaf: 1
             random_state: 42
     outs:
     - path: artifacts/model.joblib
       hash: md5
-      md5: 89ee2abc2b651f92f294db1e3ca7a91a
-      size: 4779549
+      md5: d6404e9c6a9984142c07dadff530b2d1
+      size: 5407341
   evaluate:
     cmd: python3 -m src.evaluation
     deps:
     - path: artifacts/model.joblib
       hash: md5
-      md5: 89ee2abc2b651f92f294db1e3ca7a91a
-      size: 4779549
+      md5: d6404e9c6a9984142c07dadff530b2d1
+      size: 5407341
     - path: data/processed/splits
       hash: md5
       md5: 08a617672423aeed57ce25b501ef1ef9.dir
@@ -157,44 +157,44 @@ stages:
       nfiles: 4
     - path: src/config.py
       hash: md5
-      md5: 9fb9da8cbb0834c849725f484d12e080
-      size: 2923
+      md5: 52ae96471220264c466a2555f745e21a
+      size: 2937
     - path: src/evaluation.py
       hash: md5
-      md5: bbf089ebd8e20bb513f0eeca23a05416
-      size: 6233
+      md5: 414291756c29cff412dd4cc384be7748
+      size: 6456
     - path: src/logger.py
       hash: md5
-      md5: 5a4125723193b0b333083d87b89bed79
-      size: 911
+      md5: 5f427d4cf05deb98248c1eaa9d7df8f4
+      size: 890
     outs:
     - path: artifacts/confusion_matrix.png
       hash: md5
-      md5: 4cc48726a02cd7d35e2ed87faccd67e9
-      size: 21622
+      md5: 43eb6338efee5296fb97d1909d683e60
+      size: 21207
     - path: artifacts/metrics.json
       hash: md5
-      md5: 0396349391846fe44ebdadb99aeaeb4d
-      size: 617
+      md5: dc1786e53cf4f7491417cc28504d3503
+      size: 616
     - path: artifacts/roc_curve.png
       hash: md5
-      md5: dc1c24bf54725b31173b4c0b3b806be6
-      size: 40259
+      md5: 39474b513af2fecb0d1532644e57d089
+      size: 39314
   data_ingestion:
     cmd: python3 -m src.data_ingestion
     deps:
     - path: src/config.py
       hash: md5
-      md5: 9fb9da8cbb0834c849725f484d12e080
-      size: 2923
+      md5: 52ae96471220264c466a2555f745e21a
+      size: 2937
     - path: src/data_ingestion.py
       hash: md5
-      md5: 217d334102fa484388ba594e4456b746
+      md5: fb2deeaf939323209055a478726b5db3
       size: 1074
     - path: src/logger.py
       hash: md5
-      md5: 5a4125723193b0b333083d87b89bed79
-      size: 911
+      md5: 5f427d4cf05deb98248c1eaa9d7df8f4
+      size: 890
     params:
       config/params.yaml:
         dataset:

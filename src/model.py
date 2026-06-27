@@ -1,7 +1,8 @@
 import os
+
 import joblib
-from sklearn.ensemble import GradientBoostingClassifier
 import pandas as pd
+from sklearn.ensemble import GradientBoostingClassifier
 
 from src.config import (
     ARTIFACTS_PATH,
@@ -12,9 +13,8 @@ from src.config import (
     X_TRAIN_PATH,
     Y_TRAIN_PATH,
 )
-from src.logger import logging, log_section
+from src.logger import log_section, logging
 from src.preprocessing import DataPreprocessing
-from src.feature_engineering import FeatureEngineer
 
 _SUPPORTED_MODELS = {"gradient_boosting", "gradientboosting", "gb"}
 
@@ -39,7 +39,9 @@ class ModelTrainer:
         logging.info(f"Model trained on {X_train.shape[0]} rows")
         return self.model
 
-    def save(self, preprocessor: DataPreprocessing, feature_columns: list[str], scaler=None) -> None:
+    def save(
+        self, preprocessor: DataPreprocessing, feature_columns: list[str], scaler=None
+    ) -> None:
         """Persist a single-bundle artifact: model + preprocessor + scaler + feature schema."""
         log_section("Step: save (bundle artifact)")
         if self.model is None:
@@ -56,7 +58,14 @@ class ModelTrainer:
         joblib.dump(artifact, MODEL_PATH)
         logging.info(f"Bundle saved to {MODEL_PATH} (keys: {list(artifact.keys())})")
 
-    def run(self, X_train: pd.DataFrame, y_train: pd.Series, preprocessor: DataPreprocessing, feature_columns: list[str], scaler=None) -> GradientBoostingClassifier:
+    def run(
+        self,
+        X_train: pd.DataFrame,
+        y_train: pd.Series,
+        preprocessor: DataPreprocessing,
+        feature_columns: list[str],
+        scaler=None,
+    ) -> GradientBoostingClassifier:
         self.fit(X_train, y_train)
         self.save(preprocessor=preprocessor, feature_columns=feature_columns, scaler=scaler)
         assert self.model is not None

@@ -14,13 +14,10 @@ logging.basicConfig(
     level=logging.INFO,
     # format="%(asctime)s - %(levelname)s - %(message)s - %(filename)s:%(lineno)d",
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler(LOG_FILE),
-        logging.StreamHandler()
-    ]
+    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()],
 )
 
-logging = logging.getLogger('loan_prediction')
+logging = logging.getLogger("loan_prediction")
 
 
 def log_section(title: str, char: str = "-", width: int = 60) -> None:

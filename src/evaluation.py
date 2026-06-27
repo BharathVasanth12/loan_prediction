@@ -1,32 +1,34 @@
 import json
 import os
+
 import matplotlib
+
 matplotlib.use("Agg")  # non-interactive backend for pipeline runs
 import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.metrics import (
-    accuracy_score,
-    precision_score,
-    recall_score,
-    f1_score,
-    roc_auc_score,
-    confusion_matrix,
     ConfusionMatrixDisplay,
     RocCurveDisplay,
+    accuracy_score,
+    confusion_matrix,
+    f1_score,
+    precision_score,
+    recall_score,
+    roc_auc_score,
 )
 
 from src.config import (
     ARTIFACTS_PATH,
-    METRICS_PATH,
     CM_PLOT_PATH,
-    ROC_PLOT_PATH,
+    METRICS_PATH,
     MODEL_PATH,
-    X_TRAIN_PATH,
+    ROC_PLOT_PATH,
     X_TEST_PATH,
-    Y_TRAIN_PATH,
+    X_TRAIN_PATH,
     Y_TEST_PATH,
+    Y_TRAIN_PATH,
 )
-from src.logger import logging, log_section
+from src.logger import log_section, logging
 
 
 class ModelEvaluator:
@@ -51,7 +53,13 @@ class ModelEvaluator:
                 logging.warning(f"ROC-AUC could not be computed: {e}")
         return out
 
-    def evaluate(self, X_train: pd.DataFrame, y_train: pd.Series, X_test: pd.DataFrame, y_test: pd.Series,) -> dict:
+    def evaluate(
+        self,
+        X_train: pd.DataFrame,
+        y_train: pd.Series,
+        X_test: pd.DataFrame,
+        y_test: pd.Series,
+    ) -> dict:
         log_section("Step: evaluate (compute metrics)")
         y_pred_train = self.model.predict(X_train)
         y_pred_test = self.model.predict(X_test)
@@ -114,11 +122,19 @@ class ModelEvaluator:
         if hasattr(self.model, "predict_proba"):
             fig_roc, ax_roc = plt.subplots(figsize=(5, 4))
             RocCurveDisplay.from_estimator(
-                self.model, X_train, y_train, ax=ax_roc, name="Train",
+                self.model,
+                X_train,
+                y_train,
+                ax=ax_roc,
+                name="Train",
                 curve_kwargs={"color": "steelblue"},
             )
             RocCurveDisplay.from_estimator(
-                self.model, X_test, y_test, ax=ax_roc, name="Test",
+                self.model,
+                X_test,
+                y_test,
+                ax=ax_roc,
+                name="Test",
                 curve_kwargs={"color": "darkorange"},
             )
             ax_roc.plot([0, 1], [0, 1], "--", color="grey", linewidth=1, label="Chance")
@@ -134,11 +150,18 @@ class ModelEvaluator:
 
         return {"confusion_matrix": CM_PLOT_PATH, "roc_curve": roc_path}
 
-    def run(self, X_train: pd.DataFrame, y_train: pd.Series, X_test: pd.DataFrame, y_test: pd.Series,) -> dict:
+    def run(
+        self,
+        X_train: pd.DataFrame,
+        y_train: pd.Series,
+        X_test: pd.DataFrame,
+        y_test: pd.Series,
+    ) -> dict:
         report = self.evaluate(X_train, y_train, X_test, y_test)
         self.save(report)
         self.save_plots(X_train, y_train, X_test, y_test)
         return report
+
 
 if __name__ == "__main__":
     # DVC stage entry point: loads trained bundle + splits from disk,

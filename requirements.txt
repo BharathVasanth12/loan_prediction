@@ -13,3 +13,4 @@ joblib
 mlflow
 dvc
 dvc-s3
+kagglehub

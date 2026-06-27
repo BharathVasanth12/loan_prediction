@@ -1,27 +1,28 @@
 import os
+
 import joblib
 import pandas as pd
+from imblearn.over_sampling import SMOTE
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from imblearn.over_sampling import SMOTE
 
 from src.config import (
+    ARTIFACTS_PATH,
+    BALANCING_CONFIG,
+    RANDOM_STATE,
+    SCALER_PATH,
+    SCALING_CONFIG,
+    SPLITS_DIR,
+    STRATIFY,
     TARGET_COLUMN,
     TEST_SIZE,
-    RANDOM_STATE,
-    STRATIFY,
-    BALANCING_CONFIG,
-    SCALING_CONFIG,
-    ARTIFACTS_PATH,
-    SCALER_PATH,
-    SPLITS_DIR,
-    X_TRAIN_PATH,
     X_TEST_PATH,
-    Y_TRAIN_PATH,
+    X_TRAIN_PATH,
     Y_TEST_PATH,
+    Y_TRAIN_PATH,
 )
+from src.logger import log_section, logging
 from src.utils import load_dataset
-from src.logger import logging, log_section
 
 
 class FeatureEngineer:
@@ -44,14 +45,13 @@ class FeatureEngineer:
         log_section("Step: train_test_split")
         stratify = y if STRATIFY else None
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y,
+            X,
+            y,
             test_size=TEST_SIZE,
             random_state=RANDOM_STATE,
             stratify=stratify,
         )
-        logging.info(
-            f"Train/test split: train={X_train.shape}, test={X_test.shape}"
-        )
+        logging.info(f"Train/test split: train={X_train.shape}, test={X_test.shape}")
         return X_train, X_test, y_train, y_test
 
     def balance_target_column(self, X_train: pd.DataFrame, y_train: pd.Series):
@@ -102,6 +102,7 @@ class FeatureEngineer:
         # Scaler is NOT saved here — it ships inside the model bundle (see model.py)
         return X_train_scaled, X_test_scaled, y_train_bal, y_test
 
+
 if __name__ == "__main__":
     # DVC stage entry point: writes train/test split CSVs + fitted scaler.
     os.makedirs(SPLITS_DIR, exist_ok=True)
@@ -114,9 +115,7 @@ if __name__ == "__main__":
     X_test.to_csv(X_TEST_PATH, index=False)
     y_train.to_csv(Y_TRAIN_PATH, index=False)
     y_test.to_csv(Y_TEST_PATH, index=False)
-    logging.info(
-        f"Splits saved to '{SPLITS_DIR}' (X_train={X_train.shape}, X_test={X_test.shape})"
-    )
+    logging.info(f"Splits saved to '{SPLITS_DIR}' (X_train={X_train.shape}, X_test={X_test.shape})")
 
     if fe.scaler is not None:
         joblib.dump(fe.scaler, SCALER_PATH)

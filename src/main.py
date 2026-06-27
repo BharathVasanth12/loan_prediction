@@ -25,35 +25,35 @@ warnings.filterwarnings("ignore", message=".*Inferred schema contains integer co
 # IMPORTANT: import src.config BEFORE mlflow so that load_dotenv() runs and
 # MLFLOW_TRACKING_USERNAME / MLFLOW_TRACKING_PASSWORD are present in os.environ
 # when mlflow first reads them.
+import mlflow
+from mlflow.models import infer_signature
+
 from src.config import (
-    DATASET_NAME,
-    PROCESSED_PATH,
-    TRAIN_DATA_PATH,
-    TEST_DATA_PATH,
-    TRAIN_PROCESSED_PATH,
-    MODEL_PATH,
-    METRICS_PATH,
+    BALANCING_CONFIG,
     CM_PLOT_PATH,
-    ROC_PLOT_PATH,
+    DATASET_NAME,
+    METRICS_PATH,
     MLFLOW_EXPERIMENT,
     MLFLOW_TRACKING_URI,
     MODEL_CONFIG,
-    BALANCING_CONFIG,
-    SCALING_CONFIG,
-    TEST_SIZE,
+    MODEL_PATH,
+    PROCESSED_PATH,
     RANDOM_STATE,
+    ROC_PLOT_PATH,
+    SCALING_CONFIG,
     STRATIFY,
     TARGET_COLUMN,
+    TEST_DATA_PATH,
+    TEST_SIZE,
+    TRAIN_DATA_PATH,
+    TRAIN_PROCESSED_PATH,
 )
-
-import mlflow
-from mlflow.models import infer_signature
 from src.data_ingestion import DataIngestion
-from src.preprocessing import DataPreprocessing
-from src.feature_engineering import FeatureEngineer
-from src.model import ModelTrainer
 from src.evaluation import ModelEvaluator
-from src.logger import logging, log_section
+from src.feature_engineering import FeatureEngineer
+from src.logger import log_section, logging
+from src.model import ModelTrainer
+from src.preprocessing import DataPreprocessing
 
 
 def run_pipeline(force_download: bool = False, run_name: str | None = None) -> dict:
